@@ -248,22 +248,24 @@ class PDFGenerator(FPDF):
     def _setup_fonts(self):
         r = resource_path("DejaVuSans.ttf")
         b = resource_path("DejaVuSans-Bold.ttf")
+        
         if os.path.exists(r) and os.path.exists(b):
-            # Alten Font-Cache löschen (Python-Versions-Inkompatibilität)
+            # Cache-Dateien löschen, um Inkompatibilitäten zu vermeiden
             for ttf in [r, b]:
                 pkl = ttf.replace(".ttf", ".pkl")
                 if os.path.exists(pkl):
-                    try:
-                        os.remove(pkl)
-                    except Exception:
-                        pass
+                    try: os.remove(pkl)
+                    except: pass
             try:
-                self.add_font("DejaVu", "",  r)
-                self.add_font("DejaVu", "B", b)
+                # WICHTIG: uni=True muss gesetzt sein!
+                self.add_font("DejaVu", "",  r, uni=True)
+                self.add_font("DejaVu", "B", b, uni=True)
                 self.fn = "DejaVu"
-            except Exception:
+            except Exception as e:
+                print(f"Font-Error: {e}")
                 self.fn = "Helvetica"
         else:
+            # Fallback auf Helvetica (Achtung: Helvetica kann kein €-Zeichen in latin-1!)
             self.fn = "Helvetica"
 
     def _measure_logo(self):
