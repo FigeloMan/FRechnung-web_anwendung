@@ -551,8 +551,8 @@ class PDFGenerator(FPDF):
     def _add_address(self, sender, receiver):
         self.set_xy(PAGE_L, ADDR_Y)
         self.set_font(self.fn, "", 7); self.set_text_color(*self.TEXT_LIGHT)
-        al = sender.get('address', '').replace('\n', ' • ')
-        self.cell(0, 4, f"{sender.get('company_name','')} • {al}", 0, 1)
+        al = sender.get('address', '').replace('\n', ' - ')
+        self.cell(0, 4, f"{sender.get('company_name','')} - {al}", 0, 1)
         self.ln(1); self.set_x(PAGE_L)
         self.set_font(self.fn, "B", 10.5); self.set_text_color(*self.TEXT_MAIN)
         self.multi_cell(90, 5.8,
@@ -1234,7 +1234,7 @@ class PDFGenerator(FPDF):
             self.set_x(PAGE_L)
             # Kleines Natur-Symbol als Pos-Indikator
             self.set_text_color(*self.ACCENT)
-            self.cell(C[0], 10, "●", 0, 0, "C")
+            self.cell(C[0], 10, ">>", 0, 0, "C")
             self.set_text_color(*self.TEXT_MAIN)
             vals = self._vals(i, item)
             for j in range(1, len(C)): self.cell(C[j], 10, vals[j], 0, 0, self._A[j])
