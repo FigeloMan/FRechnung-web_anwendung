@@ -36,11 +36,8 @@ config_manager = ConfigManager()
 
 @app.route("/")
 def index():
-    html_path = os.path.join(FRONTEND_DIR, "index.html")
-    with open(html_path, "r", encoding="utf-8-sig", errors="replace") as f:
-        html = f.read()
-    html = html.replace("__APP_PORT__", "")
-    return html, 200, {"Content-Type": "text/html; charset=utf-8"}
+    # Datei direkt ausliefern — kein manuelles Lesen noetig
+    return send_from_directory(FRONTEND_DIR, "index.html")
 
 
 @app.route("/favicon.ico")
@@ -89,7 +86,7 @@ def generate_pdf():
     Vollstaendig stateless: Alle Daten inkl. Firmendaten und Logo als Base64
     kommen im Request. Server speichert nichts.
     """
-    payload  = request.get_json()
+    payload   = request.get_json()
     inv_data  = payload.get("invoice",  {})
     recv_data = payload.get("receiver", {})
     items     = payload.get("items",    [])
@@ -106,10 +103,12 @@ def generate_pdf():
     tmp_logo  = None
     if logo_b64:
         try:
+            logo_bytes = base64.b64decode(logo_b64)
+            # 'wb' (binary write) — nicht 'w', da Bilddaten keine Texte sind
             tmp_logo = tempfile.NamedTemporaryFile(
-                delete=False, suffix=".png", prefix="logo_tmp_"
+                delete=False, suffix=".png", prefix="logo_tmp_", mode="wb"
             )
-            tmp_logo.write(base64.b64decode(logo_b64))
+            tmp_logo.write(logo_bytes)
             tmp_logo.close()
             logo_path = tmp_logo.name
         except Exception:
@@ -122,10 +121,11 @@ def generate_pdf():
             theme_name=theme,
         )
         pdf_bytes = result[0] if isinstance(result, tuple) else result
-        b64       = base64.b64encode(pdf_bytes).decode("utf-8")
-        return jsonify({"ok": True, "pdf_base64": b64})
+        b64_out   = base64.b64encode(pdf_bytes).decode("utf-8")
+        return jsonify({"ok": True, "pdf_base64": b64_out})
     except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+        import traceback
+        return jsonify({"ok": False, "error": str(e), "trace": traceback.format_exc()}), 500
     finally:
         if tmp_logo and os.path.exists(tmp_logo.name):
             try:
