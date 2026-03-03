@@ -14,6 +14,7 @@ import base64
 import os
 import sys
 import io
+import glob
 import tempfile
 
 from config_manager import ConfigManager
@@ -28,6 +29,15 @@ def resource_path(relative_path):
     return os.path.join(base, relative_path)
 
 
+# ── Font-Cache beim Start löschen ────────────────────────────────────────────
+for _f in glob.glob(os.path.join(resource_path("."), "*.pkl")):
+    try:
+        os.remove(_f)
+        print(f"Font-Cache gelöscht: {_f}", flush=True)
+    except Exception:
+        pass
+
+
 FRONTEND_DIR = resource_path("frontend")
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app)
@@ -36,7 +46,6 @@ config_manager = ConfigManager()
 
 @app.route("/")
 def index():
-    # Datei direkt ausliefern — kein manuelles Lesen noetig
     return send_from_directory(FRONTEND_DIR, "index.html")
 
 
@@ -52,7 +61,6 @@ def get_provider():
 
 @app.route("/api/provider", methods=["POST"])
 def save_provider():
-    # No-op: Client speichert in sessionStorage
     return jsonify({"ok": True})
 
 
@@ -99,16 +107,12 @@ def generate_pdf():
     tmp_logo  = None
     if logo_b64:
         try:
-            # Data-URL-Prefix entfernen, falls vorhanden
             if "," in logo_b64:
                 logo_b64 = logo_b64.split(",", 1)[1]
-
-            # Padding sicherstellen
             logo_b64 = logo_b64.strip()
             missing_padding = len(logo_b64) % 4
             if missing_padding:
                 logo_b64 += "=" * (4 - missing_padding)
-
             logo_bytes = base64.b64decode(logo_b64, validate=True)
             tmp_logo = tempfile.NamedTemporaryFile(
                 delete=False, suffix=".png", prefix="logo_tmp_", mode="wb"
@@ -116,8 +120,8 @@ def generate_pdf():
             tmp_logo.write(logo_bytes)
             tmp_logo.close()
             logo_path = tmp_logo.name
-        except Exception as e:
-            logo_path = ""  # Logo ignorieren, PDF trotzdem generieren
+        except Exception:
+            logo_path = ""
 
     try:
         result    = create_invoice_pdf(
@@ -127,7 +131,6 @@ def generate_pdf():
         )
         pdf_bytes = result[0] if isinstance(result, tuple) else result
 
-        # Sicherstellen dass pdf_bytes wirklich bytes sind
         if isinstance(pdf_bytes, str):
             pdf_bytes = pdf_bytes.encode("latin-1")
 
