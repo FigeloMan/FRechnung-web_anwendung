@@ -1658,6 +1658,8 @@ class PDFGenerator(FPDF):
         return ET.tostring(root, encoding='utf-8', xml_declaration=True)
 
     def _embed_xml(self, pdf_bytes, xml_bytes):
+        if isinstance(pdf_bytes, str):
+            pdf_bytes = pdf_bytes.encode('latin-1')
         reader = PdfReader(io.BytesIO(pdf_bytes))
         writer = PdfWriter()
         for page in reader.pages: writer.add_page(page)
