@@ -135,7 +135,7 @@ function App(){
       const res=await fetch(`${API}/generate-pdf`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
       const data=await res.json();
       if(data.ok){setPdfB64(data.pdf_base64);show("✅ PDF erfolgreich generiert!")}
-      else show("Fehler: "+data.error,"error");
+      else show("Fehler: " + data.error + "\n" + (data.trace || ""), "error");
     }catch(e){show("Verbindungsfehler: "+e.message,"error")}
     setLoading(false);
   };

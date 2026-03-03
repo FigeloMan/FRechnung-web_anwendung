@@ -249,9 +249,20 @@ class PDFGenerator(FPDF):
         r = resource_path("DejaVuSans.ttf")
         b = resource_path("DejaVuSans-Bold.ttf")
         if os.path.exists(r) and os.path.exists(b):
-            self.add_font("DejaVu", "",  r)
-            self.add_font("DejaVu", "B", b)
-            self.fn = "DejaVu"
+            # Alten Font-Cache löschen (Python-Versions-Inkompatibilität)
+            for ttf in [r, b]:
+                pkl = ttf.replace(".ttf", ".pkl")
+                if os.path.exists(pkl):
+                    try:
+                        os.remove(pkl)
+                    except Exception:
+                        pass
+            try:
+                self.add_font("DejaVu", "",  r)
+                self.add_font("DejaVu", "B", b)
+                self.fn = "DejaVu"
+            except Exception:
+                self.fn = "Helvetica"
         else:
             self.fn = "Helvetica"
 
