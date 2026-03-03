@@ -1513,7 +1513,7 @@ class PDFGenerator(FPDF):
             self.ln(4); self.set_x(PAGE_L)
             self.set_font(self.fn, "", 7.5); self.set_text_color(*self.TEXT_LIGHT)
             self.multi_cell(0, 4.5, invoice_data["notes"], 0, "L")
-        pdf_raw  = self.output().encode("latin-1")
+        pdf_raw  = self.output()
         xml_data = self._build_xml(invoice_data, receiver_data, items, sender_data)
         return self._embed_xml(pdf_raw, xml_data), xml_data
 
