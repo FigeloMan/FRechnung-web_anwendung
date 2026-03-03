@@ -41,9 +41,9 @@
 const {useState,useEffect}=React;
 const API="/api";
 const SK="frechnung_provider";
-const fmt=n=>typeof n==="number"?n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" \u20ac":"\u2014";
+const fmt=n=>typeof n==="number"?n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €":"—";
 const today=new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
-const TDESC={"Klassisch Blau":"Farbiger Kopf \u00b7 alternierende Zeilen","Modern Minimal":"Nur Linien \u00b7 viel Wei\xdfraum","Bold Dunkel":"Schwarzes Band \u00b7 Goldakzent","Elegant Gr\xfcn":"Linker Balken \u00b7 Zebra-Muster","Corporate Grau":"Au\xdfenrahmen \u00b7 gestrichelte Linien","Sunset Orange":"Warmton \u00b7 Akzenttrennlinien","Premium Navy":"Navy-Band \u00b7 Gold-Linie","Bauunternehmen":"Doppelband-Kopf \u00b7 Orange"};
+const TDESC={"Klassisch Blau":"Farbiger Kopf · alternierende Zeilen","Modern Minimal":"Nur Linien · viel Weißraum","Bold Dunkel":"Schwarzes Band · Goldakzent","Elegant Grün":"Linker Balken · Zebra-Muster","Corporate Grau":"Außenrahmen · gestrichelte Linien","Sunset Orange":"Warmton · Akzenttrennlinien","Premium Navy":"Navy-Band · Gold-Linie","Bauunternehmen":"Doppelband-Kopf · Orange"};
 const EMPTY={company_name:"",owner:"",contact_person:"",phone:"",email:"",address:"",tax_id:"",creditor_reference:"",bank:"",bank_account:"",bank_bic:"",logo_b64:"",logo_name:""};
 
 function loadS(){try{const r=sessionStorage.getItem(SK);return r?JSON.parse(r):null}catch{return null}}
@@ -97,13 +97,13 @@ function App(){
 
   const addItem=()=>{
     const q=parseFloat(ni.qty),p=parseFloat(ni.price.replace(",","."));
-    if(!ni.name||isNaN(q)||isNaN(p)||q<=0||p<0){show("Ung\xfcltige Eingabe \u2013 bitte pr\xfcfen.","error");return}
+    if(!ni.name||isNaN(q)||isNaN(p)||q<=0||p<0){show("Ungültige Eingabe – bitte prüfen.","error");return}
     setItems(prev=>[...prev,{id:Date.now(),name:ni.name,qty:q,unit:ni.unit,price:p,total:q*p}]);
     setNi({name:"",qty:"1",unit:"Stk.",price:""});
   };
 
   const calc=()=>{
-    if(!items.length){show("Bitte erst Artikel hinzuf\xfcgen.","error");return null}
+    if(!items.length){show("Bitte erst Artikel hinzufügen.","error");return null}
     const raw=items.reduce((s,i)=>s+i.total,0);
     const disc=parseFloat(val("discount")||"0")||0;
     const tax=parseFloat(val("taxrate")||"19")||19;
@@ -117,7 +117,7 @@ function App(){
     if(!val("customer_name")){show("Kundenname fehlt.","error");return}
     if(!val("invoice_number")){show("Rechnungsnummer fehlt.","error");return}
     if(mode==="B2G"&&!val("leitweg_id")){show("Leitweg-ID ist Pflicht bei B2G.","error");return}
-    if(!prov.company_name){show("Firmenname fehlt \u2013 bitte unter Dienstleister ausf\xfcllen.","error");return}
+    if(!prov.company_name){show("Firmenname fehlt – bitte unter Dienstleister ausfüllen.","error");return}
     const t=calc();if(!t)return;
     const days=parseInt(val("payment_days")||"14");
     let due="";
@@ -133,7 +133,7 @@ function App(){
     try{
       const res=await fetch(`${API}/generate-pdf`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
       const data=await res.json();
-      if(data.ok){setPdfB64(data.pdf_base64);show("\u2705 PDF erfolgreich generiert!")}
+      if(data.ok){setPdfB64(data.pdf_base64);show("✅ PDF erfolgreich generiert!")}
       else show("Fehler: "+data.error,"error");
     }catch(e){show("Verbindungsfehler: "+e.message,"error")}
     setLoading(false);
@@ -168,8 +168,8 @@ function App(){
     reader.readAsDataURL(file);
   };
 
-  const saveProvider=()=>{saveS(prov);show("\u2705 In dieser Session gespeichert!")};
-  const clearSession=()=>{if(!confirm("Alle Firmendaten dieser Session l\xf6schen?"))return;sessionStorage.removeItem(SK);setProv(EMPTY);show("Session gel\xf6scht.")};
+  const saveProvider=()=>{saveS(prov);show("✅ In dieser Session gespeichert!")};
+  const clearSession=()=>{if(!confirm("Alle Firmendaten dieser Session löschen?"))return;sessionStorage.removeItem(SK);setProv(EMPTY);show("Session gelöscht.")};
 
   const bg={position:"fixed",inset:0,pointerEvents:"none",zIndex:0,background:"radial-gradient(ellipse 80% 50% at 15% 10%,rgba(59,130,246,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 85% 85%,rgba(99,102,241,0.05) 0%,transparent 60%)"};
   const gr={position:"fixed",inset:0,pointerEvents:"none",zIndex:0,backgroundImage:"linear-gradient(rgba(255,255,255,0.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.016) 1px,transparent 1px)",backgroundSize:"60px 60px"};
@@ -202,13 +202,13 @@ function App(){
           <div style={{display:"flex",flexDirection:"column",gap:20}}>
             {!prov.company_name&&(
               <div style={{padding:"12px 16px",borderRadius:10,background:"rgba(251,146,60,0.08)",border:"1px solid rgba(251,146,60,0.3)",fontSize:13,color:"#fb923c",display:"flex",alignItems:"center",gap:8}}>
-                ⚠️ Firmenname fehlt — bitte zuerst unter <strong style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>setTab("provider")}>Dienstleister</strong> ausf\xfcllen.
+                ⚠️ Firmenname fehlt — bitte zuerst unter <strong style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>setTab("provider")}>Dienstleister</strong> ausfüllen.
               </div>
             )}
 
             <Card title="Rechnungsart" icon="⚡">
               <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                {[{v:"B2C",l:"B2C",s:"Privatperson",c:"#22c55e"},{v:"B2B",l:"B2B",s:"Unternehmen",c:"#3b82f6"},{v:"B2G",l:"B2G",s:"Beh\xf6rde / \xf6ffentl. Auftraggeber",c:"#7ec8e3"}].map(({v,l,s,c})=>(
+                {[{v:"B2C",l:"B2C",s:"Privatperson",c:"#22c55e"},{v:"B2B",l:"B2B",s:"Unternehmen",c:"#3b82f6"},{v:"B2G",l:"B2G",s:"Behörde / öffentl. Auftraggeber",c:"#7ec8e3"}].map(({v,l,s,c})=>(
                   <button key={v} onClick={()=>setMode(v)} style={{padding:"12px 22px",borderRadius:10,cursor:"pointer",fontFamily:"inherit",border:`1.5px solid ${mode===v?c:"rgba(255,255,255,0.08)"}`,background:mode===v?`rgba(${v==="B2G"?"126,200,227":v==="B2B"?"59,130,246":"34,197,94"},0.1)`:"rgba(255,255,255,0.03)",display:"flex",flexDirection:"column",alignItems:"flex-start",transition:"all .2s"}}>
                     <span style={{fontWeight:800,fontSize:15,color:mode===v?c:"#aaa"}}>{l}</span>
                     <span style={{fontSize:11,color:"#5a6070",marginTop:2}}>{s}</span>
@@ -220,10 +220,10 @@ function App(){
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
               <Card title="Kundendaten" icon="👤">
                 <Field label="Name / Firmenname" id="customer_name" placeholder="Max Mustermann GmbH" required/>
-                <Field label="Anschrift" id="customer_address" placeholder={"Musterstra\xdfe 1\n12345 Berlin"} type="textarea" rows={2}/>
+                <Field label="Anschrift" id="customer_address" placeholder={"Musterstraße 1\n12345 Berlin"} type="textarea" rows={2}/>
                 <Field label="Objekt / Bauvorhaben" id="object_field" placeholder="z.B. Sanierung EG"/>
-                <Field label="Ausf\xfchrung" id="aus_field" placeholder="z.B. 01.01.\u201328.02.2025"/>
-                <Field label="Leistungszeitraum" id="leistungszeitraum" placeholder="01.01.\u201331.01.2025"/>
+                <Field label="Ausführung" id="aus_field" placeholder="z.B. 01.01.–28.02.2025"/>
+                <Field label="Leistungszeitraum" id="leistungszeitraum" placeholder="01.01.–31.01.2025"/>
                 {(mode==="B2B"||mode==="B2G")&&(
                   <div style={{marginTop:12,borderTop:"1px solid rgba(59,130,246,0.2)",paddingTop:12,animation:"fadeIn .2s ease"}}>
                     <div style={{marginBottom:10,display:"inline-block",background:"rgba(59,130,246,0.15)",color:"#60a5fa",border:"1px solid rgba(59,130,246,0.3)",borderRadius:5,fontSize:10,fontWeight:700,padding:"1px 7px"}}>B2B-Felder</div>
@@ -255,9 +255,9 @@ function App(){
                   <Field label="Rabatt %" id="discount" defaultValue="0"/>
                   <Field label="Zahlungsziel (Tage)" id="payment_days" defaultValue="14"/>
                   <Field label="Bestellnummer (opt.)" id="purchase_order" placeholder="PO-12345"/>
-                  <Field label="K\xe4uferreferenz (opt.)" id="buyer_reference" placeholder="KR-98765"/>
+                  <Field label="Käuferreferenz (opt.)" id="buyer_reference" placeholder="KR-98765"/>
                 </div>
-                <Field label="Zahlungshinweis / Schlusstext" id="payment_terms" type="textarea" rows={2} defaultValue="Zahlbar sofort nach Erhalt der Rechnung ohne Abzug. Vielen Dank f\xfcr Ihren Auftrag!"/>
+                <Field label="Zahlungshinweis / Schlusstext" id="payment_terms" type="textarea" rows={2} defaultValue="Zahlbar sofort nach Erhalt der Rechnung ohne Abzug. Vielen Dank für Ihren Auftrag!"/>
                 <Field label="Interne Bemerkungen (Seitenende)" id="notes" type="textarea" rows={2}/>
               </Card>
             </div>
@@ -267,12 +267,12 @@ function App(){
                 <div className="fw"><label className="lbl">Bezeichnung</label><input placeholder="Dienstleistung XY" value={ni.name} onChange={e=>setNi(p=>({...p,name:e.target.value}))} onKeyDown={e=>e.key==="Enter"&&addItem()}/></div>
                 <div className="fw"><label className="lbl">Menge</label><input placeholder="1" value={ni.qty} onChange={e=>setNi(p=>({...p,qty:e.target.value}))}/></div>
                 <div className="fw"><label className="lbl">Einheit</label><input placeholder="Stk." value={ni.unit} onChange={e=>setNi(p=>({...p,unit:e.target.value}))}/></div>
-                <div className="fw"><label className="lbl">Einzelpreis netto (\u20ac)</label><input placeholder="0,00" value={ni.price} onChange={e=>setNi(p=>({...p,price:e.target.value}))} onKeyDown={e=>e.key==="Enter"&&addItem()}/></div>
-                <div style={{paddingBottom:10}}><button className="btn-p" onClick={addItem} style={{padding:"9px 18px",borderRadius:8,fontSize:13}}>+ Hinzuf\xfcgen</button></div>
+                <div className="fw"><label className="lbl">Einzelpreis netto (€)</label><input placeholder="0,00" value={ni.price} onChange={e=>setNi(p=>({...p,price:e.target.value}))} onKeyDown={e=>e.key==="Enter"&&addItem()}/></div>
+                <div style={{paddingBottom:10}}><button className="btn-p" onClick={addItem} style={{padding:"9px 18px",borderRadius:8,fontSize:13}}>+ Hinzufügen</button></div>
               </div>
               <div style={{background:"rgba(0,0,0,0.2)",borderRadius:10,border:"1px solid rgba(255,255,255,0.06)",overflow:"hidden",minHeight:90}}>
                 {items.length===0
-                  ?<div style={{padding:"28px 20px",textAlign:"center",color:"#2a3040",fontSize:13}}>Noch keine Positionen hinzugef\xfcgt</div>
+                  ?<div style={{padding:"28px 20px",textAlign:"center",color:"#2a3040",fontSize:13}}>Noch keine Positionen hinzugefügt</div>
                   :<>
                     <div className="thr"><span>#</span><span>Bezeichnung</span><span>Menge</span><span>Einh.</span><span>Einzelpreis</span><span>Gesamt</span><span/></div>
                     {items.map((item,i)=>(
@@ -289,7 +289,7 @@ function App(){
                   </>
                 }
               </div>
-              {items.length>0&&<div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}><button className="btn-s" style={{padding:"6px 14px",fontSize:12}} onClick={()=>{if(confirm("Alle Positionen l\xf6schen?"))setItems([])}}>Alle l\xf6schen</button></div>}
+              {items.length>0&&<div style={{display:"flex",justifyContent:"flex-end",marginTop:8}}><button className="btn-s" style={{padding:"6px 14px",fontSize:12}} onClick={()=>{if(confirm("Alle Positionen löschen?"))setItems([])}}>Alle löschen</button></div>}
             </Card>
 
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
@@ -299,7 +299,7 @@ function App(){
                   <div style={{background:"rgba(0,0,0,0.2)",borderRadius:10,padding:"14px 16px",border:"1px solid rgba(255,255,255,0.06)"}}>
                     {[["Zwischensumme",totals.raw],...(totals.disc>0?[[`Rabatt (${totals.disc}%)`,-totals.da]]:[]),["Netto",totals.sub],[`USt. (${totals.tax}%)`,totals.taxA]].map(([l,v])=>(
                       <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",fontSize:13,color:"#8090a8",borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
-                        <span>{l}</span><span style={{color:v<0?"#f87171":"#c8d0dc"}}>{v<0?"\u2212"+fmt(-v):fmt(v)}</span>
+                        <span>{l}</span><span style={{color:v<0?"#f87171":"#c8d0dc"}}>{v<0?"−"+fmt(-v):fmt(v)}</span>
                       </div>
                     ))}
                     <div style={{display:"flex",justifyContent:"space-between",padding:"10px 0 2px",borderTop:"1px solid rgba(99,102,241,0.3)",marginTop:4}}>
@@ -307,7 +307,7 @@ function App(){
                       <span style={{fontWeight:800,fontSize:20,background:"linear-gradient(90deg,#60a5fa,#a78bfa)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{fmt(totals.total)}</span>
                     </div>
                   </div>
-                ):<div style={{textAlign:"center",padding:"20px",color:"#2a3040",fontSize:13}}>Artikel hinzuf\xfcgen &amp; Berechnen klicken</div>}
+                ):<div style={{textAlign:"center",padding:"20px",color:"#2a3040",fontSize:13}}>Artikel hinzufügen &amp; Berechnen klicken</div>}
               </Card>
 
               <Card title="Layout &amp; PDF" icon="🎨">
@@ -317,7 +317,7 @@ function App(){
                 </div>
                 <div style={{fontSize:11,color:"#5a6880",marginBottom:16,padding:"6px 10px",background:"rgba(255,255,255,0.03)",borderRadius:6,borderLeft:"2px solid rgba(99,102,241,0.4)"}}>{TDESC[theme]||""}</div>
                 <button className="btn-p" style={{width:"100%",padding:13,marginBottom:8,animation:loading?"pulseGlow 1s infinite":"none"}} onClick={generatePdf} disabled={loading}>
-                  {loading?"⏳ Wird generiert \u2026":"📄 PDF generieren"}
+                  {loading?"⏳ Wird generiert …":"📄 PDF generieren"}
                 </button>
                 {pdfB64&&<>
                   <div style={{display:"flex",gap:8,marginBottom:8,animation:"fadeIn .3s ease"}}>
@@ -335,7 +335,10 @@ function App(){
         {tab==="provider"&&(
           <div style={{display:"flex",flexDirection:"column",gap:20}}>
             <div style={{padding:"14px 18px",borderRadius:10,background:"rgba(59,130,246,0.07)",border:"1px solid rgba(59,130,246,0.2)",fontSize:13,color:"#93c5fd"}}>
-              🔒 <strong>Datenschutz:</strong> Deine Firmendaten werden <strong>ausschlie\xdflich in diesem Browser-Tab</strong> gespeichert (sessionStorage). Kein Server speichert diese Daten. Beim Schlie\xdfen des Tabs sind sie gel\xf6scht.
+              🔒 <strong>Datenschutz:</strong> Deine Firmendaten werden <strong>ausschließlich in diesem Browser-Tab</strong> gespeichert (sessionStorage). Kein Server speichert diese Daten. Beim Schließen des Tabs sind sie gelöscht.
+            </div>
+            <div style="padding:14px 18px;border-radius:10;background:rgba(251,146,60,0.07);border:1px solid rgba(251,146,60,0.25);font-size:12px;color:#fdba74;margin-top:12px">
+              ⚠️ <strong>Railway-Hinweis:</strong> Diese App läuft auf Railway-Servern. Railway als Hosting-Anbieter kann theoretisch Netzwerk-Traffic einsehen. Die Rechnungsdaten (Firmendaten, Kundendaten) werden jedoch <strong>nicht vom Server gespeichert</strong> und existieren nur für die Dauer des einzelnen PDF-Requests im Arbeitsspeicher. Railway hat keinen Zugriff auf deine sessionStorage-Daten im Browser.
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
               <Card title="Firmenlogo" icon="🖼️">
@@ -345,7 +348,7 @@ function App(){
                   {prov.logo_b64
                     ?<img src={`data:image/png;base64,${prov.logo_b64}`} style={{maxHeight:60,maxWidth:200,marginBottom:8,objectFit:"contain"}} alt="Logo"/>
                     :<div style={{fontSize:32,marginBottom:8}}>📁</div>}
-                  <div style={{fontSize:13,color:"#6070a0",marginBottom:4}}>Logo ausw\xe4hlen \u2026</div>
+                  <div style={{fontSize:13,color:"#6070a0",marginBottom:4}}>Logo auswählen …</div>
                   <div style={{fontSize:11,color:"#3a4050"}}>PNG, JPG, BMP — bleibt nur in diesem Tab</div>
                   <input type="file" accept=".png,.jpg,.jpeg,.bmp" style={{display:"none"}} onChange={uploadLogo}/>
                 </label>
@@ -365,13 +368,13 @@ function App(){
                 <Field label="Telefon" placeholder="+49 30 12345678" value={prov.phone} onChange={setP("phone")}/>
                 <Field label="E-Mail" placeholder="info@musterfirma.de" value={prov.email} onChange={setP("email")}/>
                 <Field label="Steuernummer / USt-IdNr." placeholder="DE123456789" value={prov.tax_id} onChange={setP("tax_id")}/>
-                <Field label="Gl\xe4ubiger-ID SEPA (opt.)" placeholder="DE98ZZZ09999999999" value={prov.creditor_reference} onChange={setP("creditor_reference")}/>
+                <Field label="Gläubiger-ID SEPA (opt.)" placeholder="DE98ZZZ09999999999" value={prov.creditor_reference} onChange={setP("creditor_reference")}/>
               </div>
-              <Field label="Anschrift (Zeile 1: Stra\xdfe | Zeile 2: PLZ Ort)" type="textarea" rows={2} placeholder={"Musterstra\xdfe 1\n12345 Berlin"} value={prov.address} onChange={setP("address")}/>
+              <Field label="Anschrift (Zeile 1: Straße | Zeile 2: PLZ Ort)" type="textarea" rows={2} placeholder={"Musterstraße 1\n12345 Berlin"} value={prov.address} onChange={setP("address")}/>
             </Card>
             <div style={{display:"flex",gap:12}}>
               <button className="btn-p" style={{flex:1,padding:"14px",fontSize:15}} onClick={saveProvider}>💾 In dieser Session speichern</button>
-              <button className="btn-s" style={{padding:"14px 20px",fontSize:13}} onClick={clearSession}>🗑️ Session l\xf6schen</button>
+              <button className="btn-s" style={{padding:"14px 20px",fontSize:13}} onClick={clearSession}>🗑️ Session löschen</button>
             </div>
           </div>
         )}
