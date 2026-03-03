@@ -1,59 +1,92 @@
-╔══════════════════════════════════════════════════════════════╗
-║              FRechnung — Web-Version (Lokal)                 ║
-╚══════════════════════════════════════════════════════════════╝
+# FRechnung Cloud Deployment (Render.com)
 
-SCHNELLSTART — 2 Schritte:
-──────────────────────────
+## Datenschutz-Architektur
 
-  1. "FRechnung_Starten.bat" doppelklicken
-  2. Browser öffnet sich automatisch → fertig!
+Der Server ist vollstaendig stateless - er speichert keine Nutzerdaten.
 
+- Firmendaten leben ausschliesslich im Browser (sessionStorage)
+- Beim Schliessen des Tabs sind alle Daten geloescht
+- Logos als Base64 im Request, nie am Server gespeichert
+- Jeder PDF-Request ist self-contained
 
-WAS PASSIERT BEIM ERSTEN START:
-────────────────────────────────
+---
 
-  • Das Script prüft ob Python installiert ist
-  • Falls nicht → Microsoft Store öffnet sich zur Installation
-  • Danach werden benötigte Pakete automatisch heruntergeladen
-    (nur beim ersten Mal, dauert ~30 Sekunden)
-  • FRechnung startet und öffnet sich im Browser
+## Deployment auf Render.com
 
+### Schritt 1 - Repo-Struktur (Cloud-Branch)
 
-WICHTIG:
-─────────
+```
+server.py              <- Flask App (cloud Version)
+config_manager.py      <- Stateless Version (kein Keyring)
+pdf_generator.py       <- unveraendert
+requirements.txt
+render.yaml
+Procfile
+frontend/
+  index.html           <- Cloud Frontend (sessionStorage)
+  favicon.ico
+dejavu_fonts/          <- Schriftarten (optional)
+```
 
-  ► Das schwarze Fenster ("FRechnung_Starten.bat") NICHT schließen
-    solange du FRechnung benutzt!
+### Schritt 2 - Render Account
 
-  ► Alle Dateien (server.py, frontend/, ...) müssen im selben
-    Ordner liegen wie FRechnung_Starten.bat
+1. render.com -> Sign up (kostenlos, keine Kreditkarte)
+2. Mit GitHub verbinden
 
+### Schritt 3 - Web Service erstellen
 
-ORDNERSTRUKTUR (so muss es aussehen):
-──────────────────────────────────────
+1. Dashboard -> New + -> Web Service
+2. GitHub-Repo auswaehlen -> Connect
+3. Einstellungen:
+   - Name: frechnung
+   - Region: Frankfurt (EU) -- wichtig fuer DSGVO
+   - Branch: dein Cloud-Branch (z.B. web_application)
+   - Runtime: Python 3
+   - Build Command: pip install -r requirements.txt
+   - Start Command: gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+   - Plan: Free
+4. -> Create Web Service
 
-  FRechnung/
-  ├── FRechnung_Starten.bat    ← Hier doppelklicken
-  ├── server.py
-  ├── README_WEB.txt
-  └── frontend/
-      └── index.html
+URL wird: https://frechnung.onrender.com
 
+### Schritt 4 - Custom Domain (optional)
 
-BROWSER MANUELL ÖFFNEN:
-────────────────────────
+Settings -> Custom Domains -> Domain eintragen.
+SSL wird automatisch ausgestellt (Let's Encrypt).
 
-  Falls der Browser nicht automatisch aufgeht:
-  → http://localhost:5000 in die Adressleiste eingeben
+---
 
+## Kostenloser Tier - Einschraenkungen
 
-BEENDEN:
-─────────
+| Was          | Limit                                      |
+|--------------|--------------------------------------------|
+| RAM          | 512 MB                                     |
+| Spin-down    | Nach 15 Min. Inaktivitaet schlaeft der Server |
+| Aufwachzeit  | ca. 30 Sekunden beim ersten Request        |
+| Bandwidth    | 100 GB/Monat                               |
 
-  Das schwarze Fenster schließen oder
-  darin Strg+C drücken.
+Fuer produktiven Dauerbetrieb: Paid Plan ($7/Monat) = always-on.
 
+---
 
-──────────────────────────────────────────────────────────────
-FRechnung v1.0 · MIT Lizenz · github.com/FigeloMan/FRechnung
-──────────────────────────────────────────────────────────────
+## Lokaler Test
+
+```bash
+pip install -r requirements.txt
+gunicorn server:app --bind 127.0.0.1:8080 --workers 2
+```
+
+Dann: http://localhost:8080
+
+---
+
+## Cloud- vs. Desktop-Branch Unterschiede
+
+| Datei             | Desktop                    | Cloud                  |
+|-------------------|----------------------------|------------------------|
+| main.py           | pywebview App              | nicht vorhanden        |
+| server.py         | lokaler Flask-Server       | Cloud Flask-Server     |
+| config_manager.py | Keyring + Verschluesselung | Stateless (No-op)      |
+| frontend/index.html | pywebview UI             | sessionStorage UI      |
+| render.yaml       | nein                       | ja                     |
+| requirements.txt  | mit keyring, cryptography  | ohne keyring           |

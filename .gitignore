@@ -1,11 +1,45 @@
-
-RechnnungPro_2024.spec
-logo.gif
-BUILD_GUIDE.md
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
 dist/
 build/
-__pycache__/
+.eggs/
+
+# Virtuelle Umgebung
 venv/
-build.ps1
-config.json
-templates/
+.venv/
+env/
+
+# PyInstaller (nur Desktop-Version)
+*.spec
+dist/
+*.exe
+
+# Lokale Configs und Secrets
+*.dat
+*.key
+user_profile.dat
+.env
+.env.*
+
+# Desktop-spezifisch (nicht in Cloud-Branch)
+main.py
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temp-Dateien vom PDF-Generator
+logo_tmp_*
+FRechnung_Vorschau_*
