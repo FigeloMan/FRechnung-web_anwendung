@@ -82,10 +82,6 @@ def get_themes():
 
 @app.route("/api/generate-pdf", methods=["POST"])
 def generate_pdf():
-    """
-    Vollstaendig stateless: Alle Daten inkl. Firmendaten und Logo als Base64
-    kommen im Request. Server speichert nichts.
-    """
     payload   = request.get_json()
     inv_data  = payload.get("invoice",  {})
     recv_data = payload.get("receiver", {})
@@ -103,16 +99,25 @@ def generate_pdf():
     tmp_logo  = None
     if logo_b64:
         try:
-            logo_bytes = base64.b64decode(logo_b64)
-            # 'wb' (binary write) — nicht 'w', da Bilddaten keine Texte sind
+            # Data-URL-Prefix entfernen, falls vorhanden
+            if "," in logo_b64:
+                logo_b64 = logo_b64.split(",", 1)[1]
+
+            # Padding sicherstellen
+            logo_b64 = logo_b64.strip()
+            missing_padding = len(logo_b64) % 4
+            if missing_padding:
+                logo_b64 += "=" * (4 - missing_padding)
+
+            logo_bytes = base64.b64decode(logo_b64, validate=True)
             tmp_logo = tempfile.NamedTemporaryFile(
                 delete=False, suffix=".png", prefix="logo_tmp_", mode="wb"
             )
             tmp_logo.write(logo_bytes)
             tmp_logo.close()
             logo_path = tmp_logo.name
-        except Exception:
-            logo_path = ""
+        except Exception as e:
+            logo_path = ""  # Logo ignorieren, PDF trotzdem generieren
 
     try:
         result    = create_invoice_pdf(
@@ -121,7 +126,12 @@ def generate_pdf():
             theme_name=theme,
         )
         pdf_bytes = result[0] if isinstance(result, tuple) else result
-        b64_out   = base64.b64encode(pdf_bytes).decode("utf-8")
+
+        # Sicherstellen dass pdf_bytes wirklich bytes sind
+        if isinstance(pdf_bytes, str):
+            pdf_bytes = pdf_bytes.encode("latin-1")
+
+        b64_out = base64.b64encode(pdf_bytes).decode("utf-8")
         return jsonify({"ok": True, "pdf_base64": b64_out})
     except Exception as e:
         import traceback
