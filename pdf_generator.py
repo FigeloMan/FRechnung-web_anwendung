@@ -1695,7 +1695,7 @@ class PDFGenerator(FPDF):
         icc_stream = DecodedStreamObject()
         icc_stream.set_data(b"")
         icc_stream.update({
-            NameObject("/N"): NameObject("3"),  # RGB = 3 Kanäle
+            NameObject("/N"): NameObject(3),  # RGB = 3 Kanäle
         })
         icc_ref = writer._add_object(icc_stream)
 
