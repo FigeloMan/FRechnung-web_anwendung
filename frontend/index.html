@@ -415,9 +415,12 @@ function Field({label,id,placeholder,defaultValue,type,rows=2,accent,value,onCha
     onBlur:e=>{e.target.style.borderColor=""}
   };
   const p=isC?{value,...h}:{defaultValue,...h};
+  // B2B/B2G fields have an accent color — show amber star (recommended)
+  // Regular required fields (no accent) show red star (mandatory)
+  const starColor = required ? (accent ? "#f59e0b" : "#f87171") : null;
   return(
     <div className="fw">
-      {label&&<label className="lbl" style={accent?{color:accent}:{}}>{label}{required&&<span style={{color:"#f87171"}}> *</span>}</label>}
+      {label&&<label className="lbl" style={accent?{color:accent}:{}}>{label}{required&&<span style={{color:starColor,fontSize:11,marginLeft:2}} title={accent?"Empfohlen":"Pflichtfeld"}>*</span>}</label>}
       {type==="textarea"
         ?<textarea id={id} rows={rows} placeholder={placeholder} {...p}/>
         :<input id={id} type="text" placeholder={placeholder} {...p}/>
@@ -603,8 +606,8 @@ function App(){
                 {(mode==="B2B"||mode==="B2G")&&(
                   <div style={{marginTop:12,borderTop:"1px solid var(--tag-b2b-border)",paddingTop:12,animation:"fadeIn .2s ease"}}>
                     <div style={{marginBottom:10,display:"inline-block",background:"var(--tag-b2b-bg)",color:"var(--tag-b2b-color)",border:"1px solid var(--tag-b2b-border)",borderRadius:5,fontSize:10,fontWeight:700,padding:"1px 7px"}}>B2B-Felder</div>
-                    <Field label="Kundennummer" id="customer_number" placeholder="KD-00123"/>
-                    <Field label="USt-ID des Kunden" id="customer_vat" placeholder="DE123456789"/>
+                    <Field label="Kundennummer ✦" id="customer_number" placeholder="KD-00123"/>
+                    <Field label="USt-ID des Kunden ✦" id="customer_vat" placeholder="DE123456789"/>
                   </div>
                 )}
                 {mode==="B2G"&&(
@@ -615,8 +618,8 @@ function App(){
                         <span style={{display:"inline-block",background:"rgba(8,145,178,0.1)",color:"#0891b2",border:"1px solid rgba(8,145,178,0.3)",borderRadius:5,fontSize:10,fontWeight:700,padding:"1px 7px"}}>B2G — E-Rechnung</span>
                       </div>
                       <Field label="Leitweg-ID" id="leitweg_id" placeholder="991-1234567890-06" required accent="#0891b2"/>
-                      <Field label="Vertragsnummer" id="contract_ref" placeholder="VTR-2025-001" accent="#0891b2"/>
-                      <Field label="Kostenstelle" id="cost_center" placeholder="4200-001" accent="#0891b2"/>
+                      <Field label="Vertragsnummer ✦" id="contract_ref" placeholder="VTR-2025-001" accent="#0891b2"/>
+                      <Field label="Kostenstelle ✦" id="cost_center" placeholder="4200-001" accent="#0891b2"/>
                     </div>
                   </div>
                 )}
