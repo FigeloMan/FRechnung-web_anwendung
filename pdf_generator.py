@@ -880,9 +880,9 @@ class PDFGenerator(FPDF):
             for j, v in enumerate(self._vals(i, item)): self.cell(C[j], 8, v, 0, 0, self._A[j], True)
             self.ln(8)
             self.set_draw_color(192, 192, 192); self.set_line_width(0.14)
-            self.set_dash_pattern(dash=1.5, gap=1.5)
+            self._out("[1.5 1.5] 0 d")
             self.line(PAGE_L, self.get_y(), PAGE_R, self.get_y())
-            self.set_dash_pattern(dash=0, gap=0)
+            self._out("[] 0 d")
         bot = self.get_y()
         self.set_draw_color(*self.PRIMARY); self.set_line_width(0.55)
         self.rect(PAGE_L, top, PAGE_W, bot - top); self.ln(5); self._totals_right(inv)
@@ -1096,9 +1096,9 @@ class PDFGenerator(FPDF):
             for j, v in enumerate(self._vals(i, item)): self.cell(C[j], 8, v, 0, 0, self._A[j], True)
             self.ln(8)
             self.set_draw_color(*self.TEXT_LIGHT); self.set_line_width(0.15)
-            self.set_dash_pattern(dash=2, gap=2)
+            self._out("[2 2] 0 d")
             self.line(PAGE_L, self.get_y(), PAGE_R, self.get_y())
-            self.set_dash_pattern(dash=0, gap=0)
+            self._out("[] 0 d")
         bot_y = self.get_y()
         self.set_draw_color(*self.PRIMARY); self.set_line_width(0.7)
         self.line(PAGE_L, bot_y, PAGE_R, bot_y)
@@ -1147,9 +1147,9 @@ class PDFGenerator(FPDF):
             for j in range(1, len(C)): self.cell(C[j], 10, vals[j], 0, 0, self._A[j])
             self.ln(10)
             self.set_draw_color(180, 210, 170); self.set_line_width(0.2)
-            self.set_dash_pattern(dash=3, gap=2)
+            self._out("[3 2] 0 d")
             self.line(PAGE_L + 15, self.get_y(), PAGE_R, self.get_y())
-            self.set_dash_pattern(dash=0, gap=0)
+            self._out("[] 0 d")
         self.ln(4)
         self.set_draw_color(*self.PRIMARY); self.set_line_width(1.0)
         self.line(PAGE_L, self.get_y(), PAGE_R, self.get_y()); self.ln(4)
@@ -1520,6 +1520,14 @@ class PDFGenerator(FPDF):
 
         seller = ET.SubElement(agr, f"{{{RAM}}}SellerTradeParty")
         ET.SubElement(seller, f"{{{RAM}}}Name").text = sender_data.get("company_name", "")
+
+        # BR-CO-26: Seller muss eindeutig identifizierbar sein (XPath: LegalOrg/ID oder ID)
+        tid_raw = sender_data.get("tax_id", "").replace(" ", "").upper()
+        legal_org = ET.SubElement(seller, f"{{{RAM}}}SpecifiedLegalOrganization")
+        ET.SubElement(legal_org, f"{{{RAM}}}ID", schemeID="0002").text = (
+            tid_raw or sender_data.get("company_name", "n/a")
+        )
+
         if any([sender_data.get("contact_person"), sender_data.get("phone"), sender_data.get("email")]):
             sc = ET.SubElement(seller, f"{{{RAM}}}DefinedTradeContact")
             if sender_data.get("contact_person"):
@@ -1541,11 +1549,19 @@ class PDFGenerator(FPDF):
                 ET.SubElement(sa, f"{{{RAM}}}CityName").text     = pc[1]
         ET.SubElement(sa, f"{{{RAM}}}CountryID").text = "DE"
 
-        tid = sender_data.get("tax_id", "").replace(" ", "").upper()
-        if tid:
-            st     = ET.SubElement(seller, f"{{{RAM}}}SpecifiedTaxRegistration")
-            scheme = "VA" if tid.startswith("DE") else "FC"
-            ET.SubElement(st, f"{{{RAM}}}ID", schemeID=scheme).text = tid
+        # BR-S-02: Bei CategoryCode "S" ist SpecifiedTaxRegistration (VA oder FC) Pflicht
+        trate_check = float(invoice_data.get("tax_rate", 19))
+        if trate_check > 0:
+            st = ET.SubElement(seller, f"{{{RAM}}}SpecifiedTaxRegistration")
+            if tid_raw:
+                scheme = "VA" if tid_raw.startswith("DE") else "FC"
+                ET.SubElement(st, f"{{{RAM}}}ID", schemeID=scheme).text = tid_raw
+            else:
+                ET.SubElement(st, f"{{{RAM}}}ID", schemeID="FC").text = "UNBEKANNT"
+        elif tid_raw:
+            st = ET.SubElement(seller, f"{{{RAM}}}SpecifiedTaxRegistration")
+            scheme = "VA" if tid_raw.startswith("DE") else "FC"
+            ET.SubElement(st, f"{{{RAM}}}ID", schemeID=scheme).text = tid_raw
 
         buyer = ET.SubElement(agr, f"{{{RAM}}}BuyerTradeParty")
         ET.SubElement(buyer, f"{{{RAM}}}Name").text = receiver_data.get("customer_name", "")
