@@ -9,7 +9,7 @@ PDF Generator — ZUGFeRD 2.3.3 / Factur-X Basic (EN 16931)  v17.0
   Midnight Purple · Warm Linen      · Tech Blueprint · Sakura
   Carbon          · Swiss Precision
 
-Änderungen v16 → v17 (PDF/A-3b vollständige ISO 19005-3 Konformität):
+Änderungen v1.2 → v17 (PDF/A-3b vollständige ISO 19005-3 Konformität):
   FIX 7  /OutputIntent mit /DestOutputProfile-Stream (ISO 19005-3 §6.4 – Pflicht)
   FIX 8  /AF-Array im Document Catalog (ISO 19005-3 §7.11 – Pflicht)
   FIX 9  /ViewerPreferences mit /DisplayDocTitle=true (ISO 19005-3 §6.6.1)
@@ -260,7 +260,7 @@ def _build_xmp(invoice_number: str, invoice_date: str) -> bytes:
         '    </rdf:Description>\n'
         '    <rdf:Description rdf:about=""\n'
         '        xmlns:xmp="http://ns.adobe.com/xap/1.0/">\n'
-        f'      <xmp:CreatorTool>FRechnung v16.0</xmp:CreatorTool>\n'
+        f'      <xmp:CreatorTool>FRechnung v1.2.0</xmp:CreatorTool>\n'
         f'      <xmp:CreateDate>{now}</xmp:CreateDate>\n'
         f'      <xmp:ModifyDate>{now}</xmp:ModifyDate>\n'
         '    </rdf:Description>\n'
@@ -1735,8 +1735,8 @@ class PDFGenerator(FPDF):
         # 7) Dokument-Metadaten (Info-Dictionary)
         writer.add_metadata({
             '/Title':        f'ZUGFeRD Rechnung {invoice_data.get("invoice_number", "")}',
-            '/Creator':      'FRechnung v16.0',
-            '/Producer':     'FRechnung v16.0 / pypdf',
+            '/Creator':      'FRechnung v1.2.0',
+            '/Producer':     'FRechnung v1.2.0 / pypdf',
             '/Subject':      'ZUGFeRD 2.3.3 Basic',
             '/CreationDate': datetime.utcnow().strftime("D:%Y%m%d%H%M%S+00'00'"),
             '/ModDate':      datetime.utcnow().strftime("D:%Y%m%d%H%M%S+00'00'"),
