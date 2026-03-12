@@ -1765,3 +1765,5 @@ def create_invoice_pdf(invoice_data, receiver_data, items, sender_data,
     gen = PDFGenerator(theme_name=theme_name)
     gen.logo_path = logo_path
     return gen.generate_invoice(invoice_data, receiver_data, items, sender_data)
+
+#
