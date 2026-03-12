@@ -1,39 +1,375 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FRechnung</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
+    /* ── CSS Variables ── */
+    :root {
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── DARK THEME ── */
+    [data-theme="dark"] {
+      --bg-base:       #0a0a0f;
+      --bg-card:       linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      --bg-card-solid: rgba(18,18,28,0.95);
+      --bg-input:      rgba(255,255,255,0.05);
+      --bg-input-focus:rgba(255,255,255,0.07);
+      --bg-table:      rgba(0,0,0,0.2);
+      --bg-row-alt:    rgba(255,255,255,0.02);
+      --bg-code:       rgba(255,255,255,0.03);
+      --border:        rgba(255,255,255,0.07);
+      --border-input:  rgba(255,255,255,0.09);
+      --border-focus:  rgba(99,102,241,0.6);
+      --text-primary:  #e8eaf0;
+      --text-secondary:#8090a8;
+      --text-muted:    #4a5468;
+      --text-label:    #4a5468;
+      --text-subtle:   #2a3040;
+      --accent-blue:   #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-glow:   rgba(99,102,241,0.35);
+      --header-border: rgba(255,255,255,0.06);
+      --card-shadow:   0 4px 24px rgba(0,0,0,0.25);
+      --btn-secondary-bg:   rgba(255,255,255,0.05);
+      --btn-secondary-color:#8090a8;
+      --btn-secondary-border:rgba(255,255,255,0.1);
+      --btn-secondary-hover-bg:rgba(255,255,255,0.08);
+      --btn-secondary-hover-color:#c0c8d8;
+      --totals-bg:     rgba(0,0,0,0.2);
+      --totals-border: rgba(255,255,255,0.06);
+      --totals-sep:    rgba(255,255,255,0.04);
+      --totals-line:   rgba(99,102,241,0.3);
+      --theme-hint-bg: rgba(255,255,255,0.03);
+      --theme-hint-border: rgba(99,102,241,0.4);
+      --theme-hint-color: #5a6880;
+      --warn-bg:       rgba(251,146,60,0.08);
+      --warn-border:   rgba(251,146,60,0.3);
+      --warn-color:    #fb923c;
+      --info-bg:       rgba(59,130,246,0.07);
+      --info-border:   rgba(59,130,246,0.2);
+      --info-color:    #93c5fd;
+      --railway-bg:    rgba(251,146,60,0.07);
+      --railway-border:rgba(251,146,60,0.25);
+      --railway-color: #fdba74;
+      --success-bg:    rgba(34,197,94,0.08);
+      --success-border:rgba(34,197,94,0.2);
+      --success-color: #86efac;
+      --row-delete-bg: rgba(239,68,68,0.12);
+      --header-bg:     linear-gradient(to right, rgba(59,130,246,0.08), transparent);
+      --header-color:  #5a6880;
+      --tag-b2b-bg:    rgba(59,130,246,0.15);
+      --tag-b2b-color: #60a5fa;
+      --tag-b2b-border:rgba(59,130,246,0.3);
+      --b2g-bg:        rgba(14,30,48,0.95);
+      --b2g-border:    rgba(126,200,227,0.35);
+      --scrollbar:     rgba(255,255,255,0.12);
+      --logo-border:   rgba(255,255,255,0.1);
+      --logo-bg:       rgba(255,255,255,0.02);
+      --logo-hover-border: rgba(99,102,241,0.4);
+      --logo-hover-bg: rgba(99,102,241,0.04);
+      --logo-text:     #6070a0;
+      --logo-subtext:  #3a4050;
+      --total-gradient:linear-gradient(90deg,#60a5fa,#a78bfa);
+      --bg-grid:       rgba(255,255,255,0.016);
+      --bg-glow1:      rgba(59,130,246,0.07);
+      --bg-glow2:      rgba(99,102,241,0.05);
+      --tab-active-shadow: 0 4px 16px rgba(99,102,241,0.3);
+      --tab-inactive-bg:   rgba(255,255,255,0.05);
+      --tab-inactive-color:#7a8090;
+      --badge-bg:      rgba(34,197,94,0.1);
+      --badge-border:  rgba(34,197,94,0.25);
+      --badge-color:   #4ade80;
+      --dot-color:     #4ade80;
+      --session-sub:   #2a3040;
+      --icon-shadow:   0 0 24px rgba(99,102,241,0.4);
+      --mode-inactive-border: rgba(255,255,255,0.08);
+      --mode-inactive-bg: rgba(255,255,255,0.03);
+      --empty-color:   #2a3040;
+      --add-btn-hover-shadow: 0 8px 28px rgba(99,102,241,0.5);
+      --shadow-row:    200,205,215;
+    }
+
+    /* ── LIGHT THEME ── */
+    [data-theme="light"] {
+      --bg-base:       #f5f2ec;
+      --bg-card:       linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,253,248,0.9));
+      --bg-card-solid: rgba(255,253,248,0.98);
+      --bg-input:      rgba(255,255,255,0.8);
+      --bg-input-focus:rgba(255,255,255,1);
+      --bg-table:      rgba(255,255,255,0.7);
+      --bg-row-alt:    rgba(244,240,234,0.6);
+      --bg-code:       rgba(244,240,234,0.8);
+      --border:        rgba(180,160,130,0.2);
+      --border-input:  rgba(180,160,130,0.35);
+      --border-focus:  rgba(99,102,241,0.5);
+      --text-primary:  #0e0b08;
+      --text-secondary:#4a3f34;
+      --text-muted:    #6e6058;
+      --text-label:    #5e5048;
+      --text-subtle:   #a09080;
+      --accent-blue:   #2563eb;
+      --accent-indigo: #4f46e5;
+      --accent-glow:   rgba(79,70,229,0.2);
+      --header-border: rgba(180,160,130,0.18);
+      --card-shadow:   0 2px 16px rgba(100,80,60,0.1), 0 1px 4px rgba(100,80,60,0.06);
+      --btn-secondary-bg:   rgba(180,160,130,0.12);
+      --btn-secondary-color:#6b5f52;
+      --btn-secondary-border:rgba(180,160,130,0.3);
+      --btn-secondary-hover-bg:rgba(180,160,130,0.2);
+      --btn-secondary-hover-color:#3a2f24;
+      --totals-bg:     rgba(244,240,234,0.8);
+      --totals-border: rgba(180,160,130,0.2);
+      --totals-sep:    rgba(180,160,130,0.12);
+      --totals-line:   rgba(79,70,229,0.25);
+      --theme-hint-bg: rgba(244,240,234,0.8);
+      --theme-hint-border: rgba(79,70,229,0.3);
+      --theme-hint-color: #7a6e62;
+      --warn-bg:       rgba(251,146,60,0.08);
+      --warn-border:   rgba(251,146,60,0.4);
+      --warn-color:    #c2570a;
+      --info-bg:       rgba(37,99,235,0.06);
+      --info-border:   rgba(37,99,235,0.2);
+      --info-color:    #1d4ed8;
+      --railway-bg:    rgba(251,146,60,0.06);
+      --railway-border:rgba(251,146,60,0.3);
+      --railway-color: #b45309;
+      --success-bg:    rgba(22,163,74,0.07);
+      --success-border:rgba(22,163,74,0.25);
+      --success-color: #15803d;
+      --row-delete-bg: rgba(239,68,68,0.08);
+      --header-bg:     linear-gradient(to right, rgba(79,70,229,0.06), transparent);
+      --header-color:  #9a8c80;
+      --tag-b2b-bg:    rgba(37,99,235,0.08);
+      --tag-b2b-color: #1d4ed8;
+      --tag-b2b-border:rgba(37,99,235,0.25);
+      --b2g-bg:        rgba(238,248,255,0.95);
+      --b2g-border:    rgba(14,116,144,0.3);
+      --scrollbar:     rgba(100,80,60,0.2);
+      --logo-border:   rgba(180,160,130,0.3);
+      --logo-bg:       rgba(244,240,234,0.5);
+      --logo-hover-border: rgba(79,70,229,0.35);
+      --logo-hover-bg: rgba(79,70,229,0.04);
+      --logo-text:     #7a6e62;
+      --logo-subtext:  #b0a090;
+      --total-gradient:linear-gradient(90deg,#2563eb,#4f46e5);
+      --bg-grid:       rgba(100,80,60,0.025);
+      --bg-glow1:      rgba(79,70,229,0.04);
+      --bg-glow2:      rgba(37,99,235,0.03);
+      --tab-active-shadow: 0 4px 16px rgba(79,70,229,0.2);
+      --tab-inactive-bg:   rgba(180,160,130,0.1);
+      --tab-inactive-color:#8a7a6e;
+      --badge-bg:      rgba(22,163,74,0.08);
+      --badge-border:  rgba(22,163,74,0.2);
+      --badge-color:   #15803d;
+      --dot-color:     #16a34a;
+      --session-sub:   #c0b8ae;
+      --icon-shadow:   0 0 24px rgba(79,70,229,0.25);
+      --mode-inactive-border: rgba(180,160,130,0.25);
+      --mode-inactive-bg: rgba(244,240,234,0.6);
+      --empty-color:   #c0b8ae;
+      --add-btn-hover-shadow: 0 8px 28px rgba(79,70,229,0.35);
+      --shadow-row:    180,160,130;
+    }
+
+    /* ── Reset & Base ── */
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0a0a0f;color:#e8eaf0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px}
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:3px}
+
+    /* ── Animations ── */
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-    @keyframes pulseGlow{0%,100%{box-shadow:0 6px 24px rgba(99,102,241,0.35)}50%{box-shadow:0 6px 36px rgba(99,102,241,0.6)}}
-    .btn-p{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 6px 24px rgba(99,102,241,0.35)}
-    .btn-p:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(99,102,241,0.5)}
-    .btn-s{background:rgba(255,255,255,0.05);color:#8090a8;border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s,color .2s}
-    .btn-s:hover{background:rgba(255,255,255,0.08);color:#c0c8d8}
-    input,textarea,select{width:100%;padding:8px 11px;border-radius:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);color:#e0e4ec;font-family:inherit;font-size:13px;outline:none;transition:border-color .2s,background .2s}
-    input:focus,textarea:focus,select:focus{border-color:rgba(99,102,241,0.6);background:rgba(255,255,255,0.07)}
-    textarea{resize:vertical}select option{background:#1a1f2e}
-    .lbl{font-size:10px;font-weight:700;color:#4a5468;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;display:block}
+    @keyframes pulseGlow{0%,100%{box-shadow:0 6px 24px var(--accent-glow)}50%{box-shadow:0 6px 36px rgba(99,102,241,0.6)}}
+    @keyframes toggleSlide{from{transform:translateX(0)}to{transform:translateX(22px)}}
+
+    /* ── Buttons ── */
+    .btn-p {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 6px 24px var(--accent-glow);
+    }
+    .btn-p:hover{transform:translateY(-1px);box-shadow:var(--add-btn-hover-shadow)}
+    .btn-s {
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-color);
+      border: 1px solid var(--btn-secondary-border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .btn-s:hover{background:var(--btn-secondary-hover-bg);color:var(--btn-secondary-hover-color)}
+
+    /* ── Inputs ── */
+    input, textarea, select {
+      width: 100%;
+      padding: 8px 11px;
+      border-radius: 7px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s, background .2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--border-focus);
+      background: var(--bg-input-focus);
+    }
+    textarea{resize:vertical}
+    select option {
+      background: var(--bg-card-solid);
+      color: var(--text-primary);
+    }
+
+    /* ── Labels & Fields ── */
+    .lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-label);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: block;
+      transition: color var(--transition);
+    }
     .fw{margin-bottom:10px}
-    .card{background:linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px;backdrop-filter:blur(10px);box-shadow:0 4px 24px rgba(0,0,0,0.25)}
-    .card-title{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;font-weight:700;color:#c0c8dc;letter-spacing:.06em;text-transform:uppercase}
-    .thr{display:grid;grid-template-columns:30px 1fr 80px 60px 110px 110px 36px;gap:8px;padding:8px 14px;background:rgba(59,130,246,0.08);font-size:10px;font-weight:700;color:#5a6880;letter-spacing:.12em;text-transform:uppercase}
-    .trw{display:grid;grid-template-columns:30px 1fr 80px 60px 110px 110px 36px;gap:8px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px;align-items:center;animation:fadeIn .25s ease}
-    .trw:nth-child(even){background:rgba(255,255,255,0.02)}
-    .toast{position:fixed;bottom:28px;right:28px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;animation:fadeIn .3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--card-shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--header-border);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: color var(--transition), border-color var(--transition);
+    }
+
+    /* ── Table ── */
+    .thr {
+      display: grid;
+      grid-template-columns: 30px 1fr 80px 60px 110px 110px 36px;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--header-bg);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--header-color);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      transition: background var(--transition);
+    }
+    .trw {
+      display: grid;
+      grid-template-columns: 30px 1fr 80px 60px 110px 110px 36px;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      align-items: center;
+      animation: fadeIn .25s ease;
+      transition: background var(--transition);
+    }
+    .trw:nth-child(even){background:var(--bg-row-alt)}
+
+    /* ── Toast ── */
+    .toast{position:fixed;bottom:28px;right:28px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;animation:fadeIn .3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
     .ts{background:rgba(22,163,74,0.9);color:#fff;border:1px solid rgba(34,197,94,0.4)}
     .te{background:rgba(185,28,28,0.9);color:#fff;border:1px solid rgba(239,68,68,0.4)}
-    .sbadge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);font-size:10px;color:#4ade80;font-weight:600}
-    .sdot{width:6px;height:6px;border-radius:50%;background:#4ade80}
-    .b2gblock{background:linear-gradient(135deg,rgba(14,30,48,0.95),rgba(10,22,40,0.95));border:1.5px solid rgba(126,200,227,0.35);border-radius:12px;padding:14px;animation:fadeIn .25s ease}
+
+    /* ── Badges ── */
+    .sbadge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:var(--badge-bg);border:1px solid var(--badge-border);font-size:10px;color:var(--badge-color);font-weight:600;transition:background var(--transition),color var(--transition)}
+    .sdot{width:6px;height:6px;border-radius:50%;background:var(--dot-color);transition:background var(--transition)}
+    .b2gblock{background:var(--b2g-bg);border:1.5px solid var(--b2g-border);border-radius:12px;padding:14px;animation:fadeIn .25s ease;transition:background var(--transition),border-color var(--transition)}
+
+    /* ── Theme Toggle ── */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--btn-secondary-bg);
+      transition: all .2s;
+      user-select: none;
+    }
+    .theme-toggle:hover { background: var(--btn-secondary-hover-bg); }
+    .toggle-track {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      position: relative;
+      transition: background var(--transition);
+      flex-shrink: 0;
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      transition: transform var(--transition);
+    }
+    [data-theme="light"] .toggle-thumb { transform: translateX(16px); }
+    .toggle-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* ── Light mode paper texture bg ── */
+    [data-theme="light"] body {
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    }
   </style>
 </head>
 <body>
@@ -42,6 +378,7 @@
 const {useState,useEffect}=React;
 const API="/api";
 const SK="frechnung_provider";
+const SKT="frechnung_theme_mode";
 const fmt=n=>typeof n==="number"?n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €":"—";
 const today=new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
 const TDESC={"Klassisch Blau":"Farbiger Kopf · alternierende Zeilen","Modern Minimal":"Nur Linien · viel Weißraum","Bold Dunkel":"Schwarzes Band · Goldakzent","Elegant Grün":"Linker Balken · Zebra-Muster","Corporate Grau":"Außenrahmen · gestrichelte Linien","Sunset Orange":"Warmton · Akzenttrennlinien","Premium Navy":"Navy-Band · Gold-Linie","Bauunternehmen":"Doppelband-Kopf · Orange"};
@@ -49,22 +386,42 @@ const EMPTY={company_name:"",owner:"",contact_person:"",phone:"",email:"",addres
 
 function loadS(){try{const r=sessionStorage.getItem(SK);return r?JSON.parse(r):null}catch{return null}}
 function saveS(d){try{sessionStorage.setItem(SK,JSON.stringify(d))}catch{}}
+function loadTheme(){try{return sessionStorage.getItem(SKT)||"dark"}catch{return"dark"}}
+function saveTheme(t){try{sessionStorage.setItem(SKT,t)}catch{}}
 
 function Toast({msg,type,onDone}){
   useEffect(()=>{const t=setTimeout(onDone,3200);return()=>clearTimeout(t)},[]);
   return <div className={"toast "+(type==="success"?"ts":"te")}>{msg}</div>;
 }
 
+function ThemeToggle({mode,onToggle}){
+  return(
+    <div className="theme-toggle" onClick={onToggle} title={mode==="dark"?"Zu Hellmodus wechseln":"Zu Dunklmodus wechseln"}>
+      <span style={{fontSize:14}}>{mode==="dark"?"🌙":"☀️"}</span>
+      <div className="toggle-track">
+        <div className="toggle-thumb"/>
+      </div>
+      <span className="toggle-label">{mode==="dark"?"Dark":"Light"}</span>
+    </div>
+  );
+}
+
 function Field({label,id,placeholder,defaultValue,type,rows=2,accent,value,onChange,required}){
-  const ac=accent||"rgba(99,102,241,0.6)";
+  const ac=accent||"var(--border-focus)";
   const isC=value!==undefined;
-  const h={onChange:onChange?e=>onChange(e.target.value):undefined,onFocus:e=>{e.target.style.borderColor=ac;e.target.style.background="rgba(255,255,255,0.07)"},onBlur:e=>{e.target.style.borderColor=accent?accent+"44":"rgba(255,255,255,0.09)";e.target.style.background="rgba(255,255,255,0.05)"}};
-  const s=accent?{width:"100%",borderColor:accent+"44"}:{width:"100%"};
+  const h={
+    onChange:onChange?e=>onChange(e.target.value):undefined,
+    onFocus:e=>{e.target.style.borderColor=ac},
+    onBlur:e=>{e.target.style.borderColor=""}
+  };
   const p=isC?{value,...h}:{defaultValue,...h};
   return(
     <div className="fw">
       {label&&<label className="lbl" style={accent?{color:accent}:{}}>{label}{required&&<span style={{color:"#f87171"}}> *</span>}</label>}
-      {type==="textarea"?<textarea id={id} rows={rows} placeholder={placeholder} style={s} {...p}/>:<input id={id} type="text" placeholder={placeholder} style={s} {...p}/>}
+      {type==="textarea"
+        ?<textarea id={id} rows={rows} placeholder={placeholder} {...p}/>
+        :<input id={id} type="text" placeholder={placeholder} {...p}/>
+      }
     </div>
   );
 }
@@ -79,6 +436,7 @@ function Card({title,icon,children,style:ex}){
 }
 
 function App(){
+  const [themeMode,setThemeMode]=useState(()=>loadTheme());
   const [tab,setTab]=useState("invoice");
   const [mode,setMode]=useState("B2C");
   const [items,setItems]=useState([]);
@@ -90,6 +448,15 @@ function App(){
   const [toast,setToast]=useState(null);
   const [ni,setNi]=useState({name:"",qty:"1",unit:"Stk.",price:""});
   const [prov,setProv]=useState(()=>loadS()||EMPTY);
+
+  // Apply theme to html element
+  useEffect(()=>{
+    document.documentElement.setAttribute("data-theme",themeMode);
+    saveTheme(themeMode);
+  },[themeMode]);
+
+  const toggleTheme=()=>setThemeMode(m=>m==="dark"?"light":"dark");
+
   const show=(msg,type="success")=>setToast({msg,type,key:Date.now()});
   const val=id=>document.getElementById(id)?.value?.trim()||"";
   const setP=k=>v=>setProv(p=>({...p,[k]:v}));
@@ -172,8 +539,15 @@ function App(){
   const saveProvider=()=>{saveS(prov);show("✅ In dieser Session gespeichert!")};
   const clearSession=()=>{if(!confirm("Alle Firmendaten dieser Session löschen?"))return;sessionStorage.removeItem(SK);setProv(EMPTY);show("Session gelöscht.")};
 
-  const bg={position:"fixed",inset:0,pointerEvents:"none",zIndex:0,background:"radial-gradient(ellipse 80% 50% at 15% 10%,rgba(59,130,246,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 85% 85%,rgba(99,102,241,0.05) 0%,transparent 60%)"};
-  const gr={position:"fixed",inset:0,pointerEvents:"none",zIndex:0,backgroundImage:"linear-gradient(rgba(255,255,255,0.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.016) 1px,transparent 1px)",backgroundSize:"60px 60px"};
+  const bg={position:"fixed",inset:0,pointerEvents:"none",zIndex:0,
+    background:themeMode==="dark"
+      ?"radial-gradient(ellipse 80% 50% at 15% 10%,rgba(59,130,246,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 85% 85%,rgba(99,102,241,0.05) 0%,transparent 60%)"
+      :"radial-gradient(ellipse 80% 50% at 15% 10%,rgba(79,70,229,0.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 85% 85%,rgba(37,99,235,0.03) 0%,transparent 60%)"
+  };
+  const gr={position:"fixed",inset:0,pointerEvents:"none",zIndex:0,
+    backgroundImage:`linear-gradient(var(--bg-grid) 1px,transparent 1px),linear-gradient(90deg,var(--bg-grid) 1px,transparent 1px)`,
+    backgroundSize:"60px 60px"
+  };
 
   return(
     <div style={{minHeight:"100vh",position:"relative"}}>
@@ -181,19 +555,20 @@ function App(){
       <div style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 60px",position:"relative",zIndex:1}}>
 
         {/* Header */}
-        <div style={{padding:"32px 0 24px",display:"flex",alignItems:"center",gap:16}}>
-          <div style={{width:44,height:44,borderRadius:12,background:"linear-gradient(135deg,#3b82f6,#6366f1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0,boxShadow:"0 0 24px rgba(99,102,241,0.4)"}}>📄</div>
+        <div style={{padding:"32px 0 24px",display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+          <div style={{width:44,height:44,borderRadius:12,background:"linear-gradient(135deg,var(--accent-blue),var(--accent-indigo))",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0,boxShadow:"var(--icon-shadow)"}}>📄</div>
           <div>
-            <div style={{fontSize:24,fontWeight:800,letterSpacing:"-0.5px"}}>FRechnung</div>
-            <div style={{fontSize:11,color:"#3a4050",letterSpacing:"0.12em",textTransform:"uppercase",marginTop:2}}>Rechnungserstellung · Cloud</div>
+            <div style={{fontSize:24,fontWeight:800,letterSpacing:"-0.5px",fontFamily:"'Lora',serif",color:"var(--text-primary)"}}>FRechnung</div>
+            <div style={{fontSize:11,color:"var(--text-subtle)",letterSpacing:"0.12em",textTransform:"uppercase",marginTop:2}}>Rechnungserstellung · Cloud</div>
           </div>
           <div style={{marginLeft:16}}>
             <div className="sbadge"><div className="sdot"/> PRIVATE SESSION</div>
-            <div style={{fontSize:10,color:"#2a3040",marginTop:3}}>Daten bleiben in diesem Tab</div>
+            <div style={{fontSize:10,color:"var(--session-sub)",marginTop:3}}>Daten bleiben in diesem Tab</div>
           </div>
-          <div style={{marginLeft:"auto",display:"flex",gap:8}}>
+          <div style={{marginLeft:"auto",display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+            <ThemeToggle mode={themeMode} onToggle={toggleTheme}/>
             {[["invoice","Rechnungsdaten"],["provider","Dienstleister"]].map(([t,l])=>(
-              <button key={t} onClick={()=>setTab(t)} style={{padding:"8px 20px",borderRadius:8,border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:600,background:tab===t?"linear-gradient(135deg,#3b82f6,#6366f1)":"rgba(255,255,255,0.05)",color:tab===t?"#fff":"#7a8090",boxShadow:tab===t?"0 4px 16px rgba(99,102,241,0.3)":"none",transition:"all .2s"}}>{l}</button>
+              <button key={t} onClick={()=>setTab(t)} style={{padding:"8px 20px",borderRadius:8,border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:600,background:tab===t?"linear-gradient(135deg,var(--accent-blue),var(--accent-indigo))":"var(--tab-inactive-bg)",color:tab===t?"#fff":"var(--tab-inactive-color)",boxShadow:tab===t?"var(--tab-active-shadow)":"none",transition:"all .2s"}}>{l}</button>
             ))}
           </div>
         </div>
@@ -202,17 +577,17 @@ function App(){
         {tab==="invoice"&&(
           <div style={{display:"flex",flexDirection:"column",gap:20}}>
             {!prov.company_name&&(
-              <div style={{padding:"12px 16px",borderRadius:10,background:"rgba(251,146,60,0.08)",border:"1px solid rgba(251,146,60,0.3)",fontSize:13,color:"#fb923c",display:"flex",alignItems:"center",gap:8}}>
+              <div style={{padding:"12px 16px",borderRadius:10,background:"var(--warn-bg)",border:"1px solid var(--warn-border)",fontSize:13,color:"var(--warn-color)",display:"flex",alignItems:"center",gap:8}}>
                 ⚠️ Firmenname fehlt — bitte zuerst unter <strong style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>setTab("provider")}>Dienstleister</strong> ausfüllen.
               </div>
             )}
 
             <Card title="Rechnungsart" icon="⚡">
               <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                {[{v:"B2C",l:"B2C",s:"Privatperson",c:"#22c55e"},{v:"B2B",l:"B2B",s:"Unternehmen",c:"#3b82f6"},{v:"B2G",l:"B2G",s:"Behörde / öffentl. Auftraggeber",c:"#7ec8e3"}].map(({v,l,s,c})=>(
-                  <button key={v} onClick={()=>setMode(v)} style={{padding:"12px 22px",borderRadius:10,cursor:"pointer",fontFamily:"inherit",border:`1.5px solid ${mode===v?c:"rgba(255,255,255,0.08)"}`,background:mode===v?`rgba(${v==="B2G"?"126,200,227":v==="B2B"?"59,130,246":"34,197,94"},0.1)`:"rgba(255,255,255,0.03)",display:"flex",flexDirection:"column",alignItems:"flex-start",transition:"all .2s"}}>
-                    <span style={{fontWeight:800,fontSize:15,color:mode===v?c:"#aaa"}}>{l}</span>
-                    <span style={{fontSize:11,color:"#5a6070",marginTop:2}}>{s}</span>
+                {[{v:"B2C",l:"B2C",s:"Privatperson",c:"#22c55e"},{v:"B2B",l:"B2B",s:"Unternehmen",c:"var(--accent-blue)"},{v:"B2G",l:"B2G",s:"Behörde / öffentl. Auftraggeber",c:"#0891b2"}].map(({v,l,s,c})=>(
+                  <button key={v} onClick={()=>setMode(v)} style={{padding:"12px 22px",borderRadius:10,cursor:"pointer",fontFamily:"inherit",border:`1.5px solid ${mode===v?c:"var(--mode-inactive-border)"}`,background:mode===v?`color-mix(in srgb, ${c} 10%, transparent)`:"var(--mode-inactive-bg)",display:"flex",flexDirection:"column",alignItems:"flex-start",transition:"all .2s"}}>
+                    <span style={{fontWeight:800,fontSize:15,color:mode===v?c:"var(--text-secondary)"}}>{l}</span>
+                    <span style={{fontSize:11,color:"var(--text-muted)",marginTop:2}}>{s}</span>
                   </button>
                 ))}
               </div>
@@ -226,8 +601,8 @@ function App(){
                 <Field label="Ausführung" id="aus_field" placeholder="z.B. 01.01.–28.02.2025"/>
                 <Field label="Leistungszeitraum" id="leistungszeitraum" placeholder="01.01.–31.01.2025"/>
                 {(mode==="B2B"||mode==="B2G")&&(
-                  <div style={{marginTop:12,borderTop:"1px solid rgba(59,130,246,0.2)",paddingTop:12,animation:"fadeIn .2s ease"}}>
-                    <div style={{marginBottom:10,display:"inline-block",background:"rgba(59,130,246,0.15)",color:"#60a5fa",border:"1px solid rgba(59,130,246,0.3)",borderRadius:5,fontSize:10,fontWeight:700,padding:"1px 7px"}}>B2B-Felder</div>
+                  <div style={{marginTop:12,borderTop:"1px solid var(--tag-b2b-border)",paddingTop:12,animation:"fadeIn .2s ease"}}>
+                    <div style={{marginBottom:10,display:"inline-block",background:"var(--tag-b2b-bg)",color:"var(--tag-b2b-color)",border:"1px solid var(--tag-b2b-border)",borderRadius:5,fontSize:10,fontWeight:700,padding:"1px 7px"}}>B2B-Felder</div>
                     <Field label="Kundennummer" id="customer_number" placeholder="KD-00123"/>
                     <Field label="USt-ID des Kunden" id="customer_vat" placeholder="DE123456789"/>
                   </div>
@@ -237,11 +612,11 @@ function App(){
                     <div className="b2gblock">
                       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
                         <span style={{fontSize:14}}>🏛️</span>
-                        <span style={{display:"inline-block",background:"rgba(126,200,227,0.12)",color:"#7ec8e3",border:"1px solid rgba(126,200,227,0.3)",borderRadius:5,fontSize:10,fontWeight:700,padding:"1px 7px"}}>B2G — E-Rechnung</span>
+                        <span style={{display:"inline-block",background:"rgba(8,145,178,0.1)",color:"#0891b2",border:"1px solid rgba(8,145,178,0.3)",borderRadius:5,fontSize:10,fontWeight:700,padding:"1px 7px"}}>B2G — E-Rechnung</span>
                       </div>
-                      <Field label="Leitweg-ID" id="leitweg_id" placeholder="991-1234567890-06" required accent="#7ec8e3"/>
-                      <Field label="Vertragsnummer" id="contract_ref" placeholder="VTR-2025-001" accent="#7ec8e3"/>
-                      <Field label="Kostenstelle" id="cost_center" placeholder="4200-001" accent="#7ec8e3"/>
+                      <Field label="Leitweg-ID" id="leitweg_id" placeholder="991-1234567890-06" required accent="#0891b2"/>
+                      <Field label="Vertragsnummer" id="contract_ref" placeholder="VTR-2025-001" accent="#0891b2"/>
+                      <Field label="Kostenstelle" id="cost_center" placeholder="4200-001" accent="#0891b2"/>
                     </div>
                   </div>
                 )}
@@ -271,20 +646,20 @@ function App(){
                 <div className="fw"><label className="lbl">Einzelpreis netto (€)</label><input placeholder="0,00" value={ni.price} onChange={e=>setNi(p=>({...p,price:e.target.value}))} onKeyDown={e=>e.key==="Enter"&&addItem()}/></div>
                 <div style={{paddingBottom:10}}><button className="btn-p" onClick={addItem} style={{padding:"9px 18px",borderRadius:8,fontSize:13}}>+ Hinzufügen</button></div>
               </div>
-              <div style={{background:"rgba(0,0,0,0.2)",borderRadius:10,border:"1px solid rgba(255,255,255,0.06)",overflow:"hidden",minHeight:90}}>
+              <div style={{background:"var(--bg-table)",borderRadius:10,border:"1px solid var(--border)",overflow:"hidden",minHeight:90,transition:"background var(--transition)"}}>
                 {items.length===0
-                  ?<div style={{padding:"28px 20px",textAlign:"center",color:"#2a3040",fontSize:13}}>Noch keine Positionen hinzugefügt</div>
+                  ?<div style={{padding:"28px 20px",textAlign:"center",color:"var(--empty-color)",fontSize:13}}>Noch keine Positionen hinzugefügt</div>
                   :<>
                     <div className="thr"><span>#</span><span>Bezeichnung</span><span>Menge</span><span>Einh.</span><span>Einzelpreis</span><span>Gesamt</span><span/></div>
                     {items.map((item,i)=>(
                       <div className="trw" key={item.id}>
-                        <span style={{color:"#3a4858",fontWeight:700,fontSize:11}}>{i+1}</span>
+                        <span style={{color:"var(--text-muted)",fontWeight:700,fontSize:11}}>{i+1}</span>
                         <span style={{fontWeight:500}}>{item.name}</span>
-                        <span style={{color:"#8090a8"}}>{item.qty.toFixed(2)}</span>
-                        <span style={{color:"#8090a8"}}>{item.unit}</span>
+                        <span style={{color:"var(--text-secondary)"}}>{item.qty.toFixed(2)}</span>
+                        <span style={{color:"var(--text-secondary)"}}>{item.unit}</span>
                         <span>{fmt(item.price)}</span>
                         <span style={{fontWeight:700}}>{fmt(item.total)}</span>
-                        <button onClick={()=>setItems(p=>p.filter(x=>x.id!==item.id))} style={{width:28,height:28,borderRadius:6,border:"none",background:"rgba(239,68,68,0.12)",color:"#ef4444",cursor:"pointer",fontSize:16,lineHeight:1}}>×</button>
+                        <button onClick={()=>setItems(p=>p.filter(x=>x.id!==item.id))} style={{width:28,height:28,borderRadius:6,border:"none",background:"var(--row-delete-bg)",color:"#ef4444",cursor:"pointer",fontSize:16,lineHeight:1}}>×</button>
                       </div>
                     ))}
                   </>
@@ -297,18 +672,18 @@ function App(){
               <Card title="Berechnung" icon="🧮">
                 <button className="btn-s" style={{width:"100%",padding:11,marginBottom:14}} onClick={calc}>Berechnen</button>
                 {totals?(
-                  <div style={{background:"rgba(0,0,0,0.2)",borderRadius:10,padding:"14px 16px",border:"1px solid rgba(255,255,255,0.06)"}}>
+                  <div style={{background:"var(--totals-bg)",borderRadius:10,padding:"14px 16px",border:"1px solid var(--totals-border)",transition:"background var(--transition)"}}>
                     {[["Zwischensumme",totals.raw],...(totals.disc>0?[[`Rabatt (${totals.disc}%)`,-totals.da]]:[]),["Netto",totals.sub],[`USt. (${totals.tax}%)`,totals.taxA]].map(([l,v])=>(
-                      <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",fontSize:13,color:"#8090a8",borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
-                        <span>{l}</span><span style={{color:v<0?"#f87171":"#c8d0dc"}}>{v<0?"−"+fmt(-v):fmt(v)}</span>
+                      <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",fontSize:13,color:"var(--text-secondary)",borderBottom:"1px solid var(--totals-sep)"}}>
+                        <span>{l}</span><span style={{color:v<0?"#f87171":"var(--text-primary)"}}>{v<0?"−"+fmt(-v):fmt(v)}</span>
                       </div>
                     ))}
-                    <div style={{display:"flex",justifyContent:"space-between",padding:"10px 0 2px",borderTop:"1px solid rgba(99,102,241,0.3)",marginTop:4}}>
-                      <span style={{fontWeight:800,fontSize:15}}>Brutto</span>
-                      <span style={{fontWeight:800,fontSize:20,background:"linear-gradient(90deg,#60a5fa,#a78bfa)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{fmt(totals.total)}</span>
+                    <div style={{display:"flex",justifyContent:"space-between",padding:"10px 0 2px",borderTop:"1px solid var(--totals-line)",marginTop:4}}>
+                      <span style={{fontWeight:800,fontSize:15,fontFamily:"'Lora',serif"}}>Brutto</span>
+                      <span style={{fontWeight:800,fontSize:20,background:"var(--total-gradient)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{fmt(totals.total)}</span>
                     </div>
                   </div>
-                ):<div style={{textAlign:"center",padding:"20px",color:"#2a3040",fontSize:13}}>Artikel hinzufügen &amp; Berechnen klicken</div>}
+                ):<div style={{textAlign:"center",padding:"20px",color:"var(--empty-color)",fontSize:13}}>Artikel hinzufügen &amp; Berechnen klicken</div>}
               </Card>
 
               <Card title="Layout &amp; PDF" icon="🎨">
@@ -316,7 +691,7 @@ function App(){
                   <label className="lbl">Layout-Stil</label>
                   <select value={theme} onChange={e=>setTheme(e.target.value)}>{themes.map(t=><option key={t} value={t}>{t}</option>)}</select>
                 </div>
-                <div style={{fontSize:11,color:"#5a6880",marginBottom:16,padding:"6px 10px",background:"rgba(255,255,255,0.03)",borderRadius:6,borderLeft:"2px solid rgba(99,102,241,0.4)"}}>{TDESC[theme]||""}</div>
+                <div style={{fontSize:11,color:"var(--theme-hint-color)",marginBottom:16,padding:"6px 10px",background:"var(--theme-hint-bg)",borderRadius:6,borderLeft:"2px solid var(--theme-hint-border)",transition:"background var(--transition)"}}>{TDESC[theme]||""}</div>
                 <button className="btn-p" style={{width:"100%",padding:13,marginBottom:8,animation:loading?"pulseGlow 1s infinite":"none"}} onClick={generatePdf} disabled={loading}>
                   {loading?"⏳ Wird generiert …":"📄 PDF generieren"}
                 </button>
@@ -325,7 +700,7 @@ function App(){
                     <button className="btn-s" style={{flex:1,padding:"9px"}} onClick={previewPdf}>🔍 Vorschau</button>
                     <button className="btn-s" style={{flex:1,padding:"9px"}} onClick={savePdf}>💾 Speichern</button>
                   </div>
-                  <div style={{padding:"8px 12px",borderRadius:8,background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)",fontSize:12,color:"#86efac"}}>✓ PDF bereit — Vorschau oder Speichern</div>
+                  <div style={{padding:"8px 12px",borderRadius:8,background:"var(--success-bg)",border:"1px solid var(--success-border)",fontSize:12,color:"var(--success-color)"}}>✓ PDF bereit — Vorschau oder Speichern</div>
                 </>}
               </Card>
             </div>
@@ -335,25 +710,25 @@ function App(){
         {/* ── PROVIDER TAB ── */}
         {tab==="provider"&&(
           <div style={{display:"flex",flexDirection:"column",gap:20}}>
-            <div style={{padding:"14px 18px",borderRadius:10,background:"rgba(59,130,246,0.07)",border:"1px solid rgba(59,130,246,0.2)",fontSize:13,color:"#93c5fd"}}>
+            <div style={{padding:"14px 18px",borderRadius:10,background:"var(--info-bg)",border:"1px solid var(--info-border)",fontSize:13,color:"var(--info-color)"}}>
               🔒 <strong>Datenschutz:</strong> Deine Firmendaten werden <strong>ausschließlich in diesem Browser-Tab</strong> gespeichert (sessionStorage). Kein Server speichert diese Daten. Beim Schließen des Tabs sind sie gelöscht.
             </div>
-            <div style={{padding:"14px 18px",borderRadius:10,background:"rgba(251,146,60,0.07)",border:"1px solid rgba(251,146,60,0.25)",fontSize:12,color:"#fdba74",marginTop:12}}>
-              ⚠️ <strong>Railway-Hinweis:</strong> Diese App läuft auf Railway-Servern. Railway als Hosting-Anbieter kann theoretisch Netzwerk-Traffic einsehen. Die Rechnungsdaten (Firmendaten, Kundendaten) werden jedoch <strong>nicht vom Server gespeichert</strong> und existieren nur für die Dauer des einzelnen PDF-Requests im Arbeitsspeicher. Railway hat keinen Zugriff auf deine sessionStorage-Daten im Browser.
+            <div style={{padding:"14px 18px",borderRadius:10,background:"var(--railway-bg)",border:"1px solid var(--railway-border)",fontSize:12,color:"var(--railway-color)",marginTop:12}}>
+              ⚠️ <strong>Railway-Hinweis:</strong> Diese App läuft auf Railway-Servern. Railway als Hosting-Anbieter kann theoretisch Netzwerk-Traffic einsehen. Die Rechnungsdaten (Firmendaten, Kundendaten) werden jedoch <strong>nicht vom Server gespeichert</strong> und existieren nur für die Dauer des einzelnen PDF-Requests im Arbeitsspeicher.
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
               <Card title="Firmenlogo" icon="🖼️">
-                <label style={{display:"block",border:"2px dashed rgba(255,255,255,0.1)",borderRadius:10,padding:"28px 20px",textAlign:"center",cursor:"pointer",background:"rgba(255,255,255,0.02)",transition:"all .2s"}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(99,102,241,0.4)";e.currentTarget.style.background="rgba(99,102,241,0.04)"}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.1)";e.currentTarget.style.background="rgba(255,255,255,0.02)"}}>
+                <label style={{display:"block",border:`2px dashed var(--logo-border)`,borderRadius:10,padding:"28px 20px",textAlign:"center",cursor:"pointer",background:"var(--logo-bg)",transition:"all .2s"}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--logo-hover-border)";e.currentTarget.style.background="var(--logo-hover-bg)"}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--logo-border)";e.currentTarget.style.background="var(--logo-bg)"}}>
                   {prov.logo_b64
                     ?<img src={`data:image/png;base64,${prov.logo_b64}`} style={{maxHeight:60,maxWidth:200,marginBottom:8,objectFit:"contain"}} alt="Logo"/>
                     :<div style={{fontSize:32,marginBottom:8}}>📁</div>}
-                  <div style={{fontSize:13,color:"#6070a0",marginBottom:4}}>Logo auswählen …</div>
-                  <div style={{fontSize:11,color:"#3a4050"}}>PNG, JPG, BMP — bleibt nur in diesem Tab</div>
+                  <div style={{fontSize:13,color:"var(--logo-text)",marginBottom:4}}>Logo auswählen …</div>
+                  <div style={{fontSize:11,color:"var(--logo-subtext)"}}>PNG, JPG, BMP — bleibt nur in diesem Tab</div>
                   <input type="file" accept=".png,.jpg,.jpeg,.bmp" style={{display:"none"}} onChange={uploadLogo}/>
                 </label>
-                {prov.logo_name&&<div style={{marginTop:8,fontSize:11,color:"#4a6070"}}>✓ {prov.logo_name}</div>}
+                {prov.logo_name&&<div style={{marginTop:8,fontSize:11,color:"var(--text-muted)"}}>✓ {prov.logo_name}</div>}
               </Card>
               <Card title="Bankverbindung" icon="🏦">
                 <Field label="Bankname" placeholder="Musterbank AG" value={prov.bank} onChange={setP("bank")}/>
